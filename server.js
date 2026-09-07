@@ -393,9 +393,9 @@ app.post("/upload-pdf", requireAdmin, (req, res) => {
 
     try {
       const supabaseUrl = process.env.SUPABASE_URL;
-      const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+      const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-      if (!supabaseUrl || !supabaseSecretKey) {
+      if (!supabaseUrl || !supabaseServiceRoleKey) {
         console.error("Supabase environment variables are missing");
         return res.status(500).json({
           error: "Supabase storage is not configured"
@@ -404,7 +404,7 @@ app.post("/upload-pdf", requireAdmin, (req, res) => {
 
       const supabase = createClient(
         supabaseUrl,
-        supabaseSecretKey
+        supabaseServiceRoleKey
       );
 
       const safeName = path
