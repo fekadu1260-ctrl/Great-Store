@@ -7,6 +7,7 @@ const { initializeApp, cert } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
 const { v2: cloudinary } = require("cloudinary");
+const { createClient } = require("@supabase/supabase-js");
 const jwt = require("jsonwebtoken");
 function createCustomerToken(customer) {
   return jwt.sign(
@@ -391,55 +392,69 @@ app.post("/upload-pdf", requireAdmin, (req, res) => {
     }
 
     try {
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+
+      if (!supabaseUrl || !supabaseSecretKey) {
+        console.error("Supabase environment variables are missing");
+        return res.status(500).json({
+          error: "Supabase storage is not configured"
+        });
+      }
+
+      const supabase = createClient(
+        supabaseUrl,
+        supabaseSecretKey
+      );
+
       const safeName = path
         .basename(req.file.originalname)
         .replace(/[^a-zA-Z0-9._-]/g, "_");
 
       const fileName = `${Date.now()}-${safeName}`;
+      const filePath = `pdf-shop/${fileName}`;
 
-      const uploadResult = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            resource_type: "image",
-            folder: "pdf-shop/pdfs",
-            public_id: fileName,
-            use_filename: false,
-            overwrite: false
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
+      const { error: uploadError } = await supabase.storage
+        .from("PDF")
+        .upload(filePath, req.file.buffer, {
+          contentType: "application/pdf",
+          upsert: false
+        });
 
-        uploadStream.end(req.file.buffer);
-      });
+      if (uploadError) {
+        console.error("Supabase PDF upload failed:", {
+          message: uploadError.message,
+          name: uploadError.name,
+          statusCode: uploadError.statusCode
+        });
 
-      console.log("PDF uploaded to Cloudinary:", fileName);
+        return res.status(500).json({
+          error: "Supabase PDF upload failed",
+          details: uploadError.message
+        });
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("PDF")
+        .getPublicUrl(filePath);
+
+      console.log("PDF uploaded to Supabase:", filePath);
 
       return res.status(201).json({
-        message: "PDF uploaded successfully to Cloudinary",
+        message: "PDF uploaded successfully to Supabase",
         fileName,
         originalName: req.file.originalname,
         size: req.file.size,
-        fileUrl: uploadResult.secure_url,
-        cloudinaryPublicId: uploadResult.public_id
+        fileUrl: publicUrlData.publicUrl,
+        supabasePath: filePath
       });
 
     } catch (uploadError) {
-      console.error("Cloudinary upload failed FULL:", {
-        message: uploadError.message,
-        http_code: uploadError.http_code,
-        name: uploadError.name,
-        error: uploadError.error,
-        stack: uploadError.stack,
-        response: uploadError.response
-      });
+      console.error("Supabase upload exception:", uploadError);
 
       return res.status(500).json({
-        error: "Cloudinary upload failed",
-        details: uploadError.message,
-        http_code: uploadError.http_code
+        error: "Supabase PDF upload failed",
+        details: uploadError.message
       });
     }
   });
