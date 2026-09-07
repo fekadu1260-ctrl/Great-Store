@@ -9,6 +9,8 @@ const { getAuth } = require("firebase-admin/auth");
 const { v2: cloudinary } = require("cloudinary");
 const { createClient } = require("@supabase/supabase-js");
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
+const FormData = require("form-data");
 function createCustomerToken(customer) {
   return jwt.sign(
     {
@@ -392,68 +394,66 @@ app.post("/upload-pdf", requireAdmin, (req, res) => {
     }
 
     try {
-      const supabaseUrl = process.env.SUPABASE_URL;
-      const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const postfileApiKey = process.env.POSTFILE_API_KEY;
 
-      if (!supabaseUrl || !supabaseServiceRoleKey) {
-        console.error("Supabase environment variables are missing");
+      if (!postfileApiKey) {
+        console.error("POSTFILE_API_KEY environment variable is missing");
         return res.status(500).json({
-          error: "Supabase storage is not configured"
+          error: "PostFile storage is not configured"
         });
       }
-
-      const supabase = createClient(
-        supabaseUrl,
-        supabaseServiceRoleKey
-      );
 
       const safeName = path
         .basename(req.file.originalname)
         .replace(/[^a-zA-Z0-9._-]/g, "_");
 
-      const fileName = `${Date.now()}-${safeName}`;
-      const filePath = `pdf-shop/${fileName}`;
+      const form = new FormData();
 
-      const { error: uploadError } = await supabase.storage
-        .from("PDF")
-        .upload(filePath, req.file.buffer, {
-          contentType: "application/pdf",
-          upsert: false
-        });
+      form.append("file", req.file.buffer, {
+        filename: safeName,
+        contentType: "application/pdf"
+      });
 
-      if (uploadError) {
-        console.error("Supabase PDF upload failed:", {
-          message: uploadError.message,
-          name: uploadError.name,
-          statusCode: uploadError.statusCode
-        });
+      const postfileResponse = await axios.post(
+        "https://postfile.net/v1/upload",
+        form,
+        {
+          headers: {
+            ...form.getHeaders(),
+            "X-API-Key": postfileApiKey
+          },
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity
+        }
+      );
+
+      const postfileData = postfileResponse.data;
+
+      if (!postfileData || !postfileData.url) {
+        console.error("PostFile returned an invalid response:", postfileData);
 
         return res.status(500).json({
-          error: "Supabase PDF upload failed",
-          details: uploadError.message
+          error: "PostFile upload failed",
+          details: "No file URL returned"
         });
       }
 
-      const { data: publicUrlData } = supabase.storage
-        .from("PDF")
-        .getPublicUrl(filePath);
-
-      console.log("PDF uploaded to Supabase:", filePath);
+      console.log("PDF uploaded to PostFile:", postfileData.url);
 
       return res.status(201).json({
-        message: "PDF uploaded successfully to Supabase",
-        fileName,
+        message: "PDF uploaded successfully",
+        fileName: safeName,
         originalName: req.file.originalname,
         size: req.file.size,
-        fileUrl: publicUrlData.publicUrl,
-        supabasePath: filePath
+        fileUrl: postfileData.url,
+        postfileId: postfileData.file_id
       });
 
     } catch (uploadError) {
-      console.error("Supabase upload exception:", uploadError);
+      console.error("PostFile upload exception:", uploadError);
 
       return res.status(500).json({
-        error: "Supabase PDF upload failed",
+        error: "PostFile PDF upload failed",
         details: uploadError.message
       });
     }
