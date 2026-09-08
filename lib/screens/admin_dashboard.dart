@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'admin_upload_screen.dart';
 import 'admin_payment_screen.dart';
+import 'admin_manage_items_screen.dart';
 import 'my_orders_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
@@ -18,13 +19,29 @@ class AdminDashboard extends StatelessWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.upload_file),
-              title: const Text('Add New PDF'),
+              title: const Text('Add New Item'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const AdminUploadScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.manage_search),
+              title: const Text('Manage Items'),
+              subtitle: const Text('Edit or delete existing items'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminManageItemsScreen(),
                   ),
                 );
               },

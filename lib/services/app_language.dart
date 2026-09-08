@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppLanguage {
   english,
@@ -8,11 +9,43 @@ enum AppLanguage {
 }
 
 class LanguageService {
+  static const String _languageKey = 'app_language';
+
   static final ValueNotifier<AppLanguage> current =
       ValueNotifier(AppLanguage.english);
 
-  static void setLanguage(AppLanguage language) {
+  static Future<void> loadLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_languageKey);
+
+    if (saved == null) return;
+
+    switch (saved) {
+      case 'amharic':
+        current.value = AppLanguage.amharic;
+        break;
+      case 'tigrinya':
+        current.value = AppLanguage.tigrinya;
+        break;
+      case 'oromo':
+        current.value = AppLanguage.oromo;
+        break;
+      case 'english':
+      default:
+        current.value = AppLanguage.english;
+        break;
+    }
+  }
+
+  static Future<void> setLanguage(AppLanguage language) async {
     current.value = language;
+
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString(
+      _languageKey,
+      language.name,
+    );
   }
 
   static String get languageName {
@@ -37,10 +70,10 @@ class LanguageService {
 
     final translations = <String, Map<AppLanguage, String>>{
       'appTitle': {
-        AppLanguage.english: 'PDF Shop',
-        AppLanguage.amharic: 'የPDF መደብር',
-        AppLanguage.tigrinya: 'መደብር PDF',
-        AppLanguage.oromo: 'Mana PDF',
+        AppLanguage.english: 'Item Shop',
+        AppLanguage.amharic: 'የItem መደብር',
+        AppLanguage.tigrinya: 'መደብር Item',
+        AppLanguage.oromo: 'Mana Item',
       },
       'offlineCustomers': {
         AppLanguage.english: 'Offline Customers',
@@ -55,22 +88,22 @@ class LanguageService {
         AppLanguage.oromo: 'Ajajoota Eegamaa Jiran',
       },
       'searchPdfs': {
-        AppLanguage.english: 'Search PDFs...',
-        AppLanguage.amharic: 'PDF ይፈልጉ...',
-        AppLanguage.tigrinya: 'PDF ድለዩ...',
-        AppLanguage.oromo: 'PDF barbaadi...',
+        AppLanguage.english: 'Search Items...',
+        AppLanguage.amharic: 'Item ይፈልጉ...',
+        AppLanguage.tigrinya: 'Item ድለዩ...',
+        AppLanguage.oromo: 'Item barbaadi...',
       },
       'noPdfs': {
-        AppLanguage.english: 'No PDFs found',
-        AppLanguage.amharic: 'ምንም PDF አልተገኘም',
-        AppLanguage.tigrinya: 'ምንም PDF ኣይተረኽበን',
-        AppLanguage.oromo: 'PDF hin argamne',
+        AppLanguage.english: 'No Items Found',
+        AppLanguage.amharic: 'ምንም Item አልተገኘም',
+        AppLanguage.tigrinya: 'ምንም Item ኣይተረኽበን',
+        AppLanguage.oromo: 'Item hin argamne',
       },
       'noMatchingPdfs': {
-        AppLanguage.english: 'No matching PDFs',
-        AppLanguage.amharic: 'የሚመሳሰል PDF አልተገኘም',
-        AppLanguage.tigrinya: 'ዝመሳሰል PDF ኣይተረኽበን',
-        AppLanguage.oromo: 'PDF walsimu hin argamne',
+        AppLanguage.english: 'No Matching Items',
+        AppLanguage.amharic: 'የሚመሳሰል Item አልተገኘም',
+        AppLanguage.tigrinya: 'ዝመሳሰል Item ኣይተረኽበን',
+        AppLanguage.oromo: 'Item walsimu hin argamne',
       },
     };
 

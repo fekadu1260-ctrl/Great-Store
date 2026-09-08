@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../models/pdf_model.dart';
 import '../services/payment_service.dart';
 import 'pdf_viewer_screen.dart';
@@ -27,6 +29,11 @@ class _PaymentWaitingScreenState
   String? errorMessage;
   bool checking = false;
   Timer? timer;
+
+  bool get approved {
+    final normalized = status.trim().toLowerCase();
+    return normalized == 'approved' || normalized == 'paid';
+  }
 
   @override
   void initState() {
@@ -58,12 +65,14 @@ class _PaymentWaitingScreenState
 
       if (!mounted) return;
 
+      final normalized = result.trim().toLowerCase();
+
       setState(() {
-        status = result;
+        status = normalized.isEmpty ? 'unknown' : normalized;
         errorMessage = null;
       });
 
-      if (result == 'approved' || result == 'paid') {
+      if (normalized == 'approved' || normalized == 'paid') {
         timer?.cancel();
       }
     } catch (e) {
@@ -77,6 +86,18 @@ class _PaymentWaitingScreenState
     }
   }
 
+  void _openItem() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PdfViewerScreen(
+          pdfUrl: widget.pdf.fileUrl,
+          paymentId: widget.paymentId,
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     timer?.cancel();
@@ -85,8 +106,7 @@ class _PaymentWaitingScreenState
 
   @override
   Widget build(BuildContext context) {
-    final approved =
-        status == 'approved' || status == 'paid';
+    final isApproved = approved;
 
     return Scaffold(
       appBar: AppBar(
@@ -99,7 +119,7 @@ class _PaymentWaitingScreenState
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                approved
+                isApproved
                     ? Icons.verified
                     : Icons.hourglass_top,
                 size: 90,
@@ -108,7 +128,7 @@ class _PaymentWaitingScreenState
               const SizedBox(height: 20),
 
               Text(
-                approved
+                isApproved
                     ? 'Payment Verified!'
                     : 'Payment Submitted',
                 textAlign: TextAlign.center,
@@ -121,8 +141,8 @@ class _PaymentWaitingScreenState
               const SizedBox(height: 12),
 
               Text(
-                approved
-                    ? 'Your payment has been verified. You can now open the PDF.'
+                isApproved
+                    ? 'Your payment has been verified. You can now open the Item.'
                     : 'Your payment is waiting for verification.',
                 textAlign: TextAlign.center,
               ),
@@ -136,6 +156,15 @@ class _PaymentWaitingScreenState
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
+              if (isApproved) ...[
+                const SizedBox(height: 12),
+
+                const Text(
+                  'Download access is now active.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
 
               if (errorMessage != null) ...[
                 const SizedBox(height: 20),
@@ -155,33 +184,20 @@ class _PaymentWaitingScreenState
 
               const SizedBox(height: 24),
 
-              if (approved)
+              if (isApproved)
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PdfViewerScreen(
-                            pdfUrl: widget.pdf.fileUrl,
-                            paymentId: widget.paymentId,
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.picture_as_pdf,
-                    ),
-                    label: const Text('OPEN PDF'),
+                    onPressed: _openItem,
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('OPEN Item'),
                   ),
                 )
               else
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed:
-                        checking ? null : _checkStatus,
+                    onPressed: checking ? null : _checkStatus,
                     icon: const Icon(Icons.refresh),
                     label: Text(
                       checking

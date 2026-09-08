@@ -14,22 +14,22 @@ class PdfListPage extends StatefulWidget {
 class _PdfListPageState extends State<PdfListPage> {
   final PdfService pdfService = PdfService();
 
-  late Future<List<PdfModel>> pdfs;
+  late Future<List<PdfModel>> items;
 
   @override
   void initState() {
     super.initState();
-    pdfs = pdfService.fetchPdfs();
+    items = pdfService.fetchPdfs();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Shop'),
+        title: const Text('Item Shop'),
       ),
       body: FutureBuilder<List<PdfModel>>(
-        future: pdfs,
+        future: items,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -40,7 +40,7 @@ class _PdfListPageState extends State<PdfListPage> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Error loading PDFs: ${snapshot.error}',
+                'Error Loading Items: ${snapshot.error}',
                 textAlign: TextAlign.center,
               ),
             );
@@ -50,7 +50,7 @@ class _PdfListPageState extends State<PdfListPage> {
 
           if (pdfList.isEmpty) {
             return const Center(
-              child: Text('No PDFs available.'),
+              child: Text('No Items Available.'),
             );
           }
 

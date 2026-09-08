@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+
 import '../services/payment_service.dart';
 
 class PdfViewerScreen extends StatefulWidget {
@@ -21,6 +26,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 
   bool loading = true;
   bool approved = false;
+  bool downloading = false;
   String status = 'pending';
 
   @override
@@ -37,9 +43,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 
       if (!mounted) return;
 
+      final normalized = result.trim().toLowerCase();
+
       setState(() {
-        status = result;
-        approved = result == 'approved' || result == 'paid';
+        status = normalized.isEmpty ? 'unknown' : normalized;
+        approved =
+            normalized == 'approved' || normalized == 'paid';
         loading = false;
       });
     } catch (e) {
@@ -52,11 +61,81 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     }
   }
 
+  Future<void> _downloadPdf() async {
+    if (downloading) return;
+
+    if (widget.pdfUrl.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Download link is not available.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      downloading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(widget.pdfUrl),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Download failed: HTTP ${response.statusCode}',
+        );
+      }
+
+      final directory = await getApplicationDocumentsDirectory();
+
+      final file = File(
+        '${directory.path}/Great_Store_Item_${widget.paymentId}.pdf',
+      );
+
+      await file.writeAsBytes(
+        response.bodyBytes,
+        flush: true,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'PDF downloaded successfully.\n${file.path}',
+          ),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Download failed: $e',
+          ),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          downloading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('PDF Viewer')),
+        appBar: AppBar(
+          title: const Text('Item Viewer'),
+        ),
         body: const Center(
           child: CircularProgressIndicator(),
         ),
@@ -65,7 +144,9 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 
     if (!approved) {
       return Scaffold(
-        appBar: AppBar(title: const Text('PDF Access')),
+        appBar: AppBar(
+          title: const Text('Item Access'),
+        ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -108,7 +189,22 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Viewer'),
+        title: const Text('Item Viewer'),
+        actions: [
+          IconButton(
+            onPressed: downloading ? null : _downloadPdf,
+            tooltip: 'Download PDF',
+            icon: downloading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(Icons.download),
+          ),
+        ],
       ),
       body: SfPdfViewer.network(
         widget.pdfUrl,

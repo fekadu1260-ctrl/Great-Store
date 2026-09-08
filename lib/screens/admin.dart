@@ -18,7 +18,7 @@ class AdminPage extends StatelessWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.upload_file),
-              title: const Text("Add PDF"),
+              title: const Text("Add Item"),
               subtitle: const Text("Upload new learning files"),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {

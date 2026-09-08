@@ -125,7 +125,7 @@ class _AdminPaymentScreenState extends State<AdminPaymentScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text('Customer: $userId'),
-                              Text('PDF ID: $pdfId'),
+                              Text('Item ID: $pdfId'),
                               Text('Amount: $amount Birr'),
                               Text('Method: $method'),
                               Text(

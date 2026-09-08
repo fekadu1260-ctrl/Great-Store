@@ -27,9 +27,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
+    // Customer accounts use the backend session token, not Firebase.
+    // Check the customer session first so a previous Firebase admin
+    // session cannot make the customer profile show admin controls.
+    final isCustomer = await _authService.isCustomerLoggedIn();
+
+    if (isCustomer) {
+      final phone = await _authService.getCustomerPhone();
+
+      if (!mounted) return;
+
+      setState(() {
+        _customerPhone = phone;
+        _isAdmin = false;
+        _loading = false;
+      });
+
+      return;
+    }
+
+    // Only a Firebase user without a customer session can be an admin.
     final adminUser = _auth.currentUser;
 
-    if (adminUser != null) {
+    if (adminUser != null && !adminUser.isAnonymous) {
       try {
         final tokenResult = await adminUser.getIdTokenResult(true);
         final claims = tokenResult.claims;
@@ -52,12 +72,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    final phone = await _authService.getCustomerPhone();
-
     if (!mounted) return;
 
     setState(() {
-      _customerPhone = phone;
+      _customerPhone = null;
       _isAdmin = false;
       _loading = false;
     });
@@ -145,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: const Icon(Icons.admin_panel_settings),
                 title: const Text("Admin Dashboard"),
                 subtitle: const Text(
-                  "Manage PDFs, payments and orders",
+                  "Manage Items, payments and orders",
                 ),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
@@ -160,11 +178,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
 
           if (!_loading && !_isAdmin)
-            const Card(
+            Card(
               child: ListTile(
-                leading: Icon(Icons.person),
-                title: Text("Customer Account"),
-                subtitle: Text("Standard PDF Shop account"),
+                leading: const Icon(Icons.person),
+                title: const Text("Customer Account"),
+                subtitle: Text(
+                  _customerPhone == null
+                      ? "Customer account"
+                      : "Signed in as $_customerPhone",
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text("Customer Account"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Account status",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _customerPhone == null
+                                  ? "Customer account"
+                                  : "Signed in as $_customerPhone",
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              "Your customer account is active.",
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("CLOSE"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
             ),
 

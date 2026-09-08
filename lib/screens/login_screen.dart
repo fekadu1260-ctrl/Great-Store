@@ -119,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Shop Login'),
+        title: const Text('Item Shop Login'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

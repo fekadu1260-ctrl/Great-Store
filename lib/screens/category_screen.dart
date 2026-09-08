@@ -22,7 +22,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Categories'),
+        title: const Text('Item Categories'),
       ),
       body: FutureBuilder<List<dynamic>>(
         future: categories,

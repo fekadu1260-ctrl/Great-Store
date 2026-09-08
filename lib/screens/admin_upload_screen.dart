@@ -84,14 +84,14 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
     try {
       String fileUrl = url;
 
-      // If a local PDF was selected, upload it to our Node.js PDF server.
+      // If a local Item was selected, upload it to our Node.js Item server.
       if (selectedFile != null) {
         fileUrl = await storageService.uploadPdf(selectedFile!);
       }
 
       if (fileUrl.isEmpty) {
         throw Exception(
-          'Please choose a PDF or enter a PDF URL.',
+          'Please choose a Item or enter a Item URL.',
         );
       }
 
@@ -109,8 +109,8 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
         SnackBar(
           content: Text(
             success
-                ? 'PDF uploaded successfully'
-                : 'PDF upload failed',
+                ? 'Item uploaded successfully'
+                : 'Item upload failed',
           ),
         ),
       );
@@ -147,7 +147,7 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add PDF'),
+        title: const Text('Add Item'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -156,7 +156,7 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
             TextField(
               controller: titleController,
               decoration: const InputDecoration(
-                labelText: 'PDF Title',
+                labelText: 'Item Title',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -199,8 +199,8 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
             TextField(
               controller: urlController,
               decoration: const InputDecoration(
-                labelText: 'PDF URL (optional)',
-                hintText: 'Leave empty when uploading a PDF file',
+                labelText: 'Item URL (optional)',
+                hintText: 'Leave empty when uploading a Item file',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -221,7 +221,7 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'PDF file selected and ready for upload.',
+                        'Item file selected and ready for upload.',
                       ),
                     ),
                   ],
@@ -235,7 +235,7 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
               child: ElevatedButton.icon(
                 onPressed: isUploading ? null : choosePdf,
                 icon: const Icon(Icons.attach_file),
-                label: const Text('Choose PDF'),
+                label: const Text('Choose Item'),
               ),
             ),
 
@@ -247,7 +247,7 @@ class _AdminUploadScreenState extends State<AdminUploadScreen> {
                 onPressed: isUploading ? null : uploadPdf,
                 icon: const Icon(Icons.cloud_upload),
                 label: Text(
-                  isUploading ? 'Uploading...' : 'Upload PDF',
+                  isUploading ? 'Uploading...' : 'Upload Item',
                 ),
               ),
             ),

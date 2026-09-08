@@ -7,7 +7,7 @@ class AddPdfPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add PDF"),
+        title: const Text("Add Item"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -15,7 +15,7 @@ class AddPdfPage extends StatelessWidget {
           children: [
             TextField(
               decoration: const InputDecoration(
-                labelText: "PDF Title",
+                labelText: "Item Title",
                 border: OutlineInputBorder(),
               ),
             ),
@@ -39,7 +39,7 @@ class AddPdfPage extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {},
-                child: const Text("Upload PDF"),
+                child: const Text("Upload Item"),
               ),
             ),
           ],

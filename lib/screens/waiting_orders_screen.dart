@@ -205,7 +205,7 @@ class _WaitingOrdersScreenState extends State<WaitingOrdersScreen> {
                                     'Customer: ${order.userId}',
                                   ),
                                   Text(
-                                    'PDF: ${order.pdfId}',
+                                    'Item: ${order.pdfId}',
                                   ),
                                   Text(
                                     'Amount: ${_formatAmount(order.amount)}',

@@ -20,13 +20,13 @@ class _HomeScreenState extends State<HomeScreen> {
   final PdfService pdfService = PdfService();
   final AuthService authService = AuthService();
 
-  late Future<List<dynamic>> pdfs;
+  late Future<List<dynamic>> items;
   String searchText = '';
 
   @override
   void initState() {
     super.initState();
-    pdfs = pdfService.fetchPdfs();
+    items = pdfService.fetchPdfs();
   }
 
   @override
@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () {},
                     icon: const Icon(Icons.shopping_cart),
-                    label: const Text('Buy PDF'),
+                    label: const Text('Buy Item'),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -152,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Expanded(
             child: FutureBuilder<List<dynamic>>(
-              future: pdfs,
+              future: items,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(

@@ -102,7 +102,7 @@ class _OfflinePurchaseScreenState extends State<OfflinePurchaseScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'PDF: ${widget.pdf.title}',
+                  'Item: ${widget.pdf.title}',
                 ),
                 const SizedBox(height: 6),
                 Text(

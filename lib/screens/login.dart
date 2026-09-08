@@ -7,7 +7,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("PDF Shop 📚"),
+        title: const Text("Item Shop 📚"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              "Welcome to PDF Shop",
+              "Welcome to Item Shop",
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,

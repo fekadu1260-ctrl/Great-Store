@@ -14,7 +14,7 @@ class PdfDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("PDF Details"),
+        title: const Text("Item Details"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -46,7 +46,7 @@ class PdfDetailsPage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                child: const Text("Buy PDF"),
+                child: const Text("Buy Item"),
                 onPressed: () {
                   Navigator.push(
                     context,

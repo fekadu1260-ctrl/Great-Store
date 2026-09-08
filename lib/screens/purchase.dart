@@ -52,6 +52,8 @@ class _PurchasePageState extends State<PurchasePage> {
     final authService = AuthService();
     final userId = await authService.getCustomerUserId();
 
+    if (!mounted) return;
+
     if (userId == null || userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -188,7 +190,7 @@ class _PurchasePageState extends State<PurchasePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Purchase PDF'),
+        title: const Text('Purchase Item'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(18),
@@ -242,7 +244,7 @@ class _PurchasePageState extends State<PurchasePage> {
             const SizedBox(height: 8),
 
             const Text(
-              '1. Send the exact PDF price to one of the accounts below.\n'
+              '1. Send the exact Item price to one of the accounts below.\n'
               '2. Keep your transaction/reference number.\n'
               '3. Enter the reference number below.\n'
               '4. Submit your payment for verification.',
@@ -362,7 +364,7 @@ class _PurchasePageState extends State<PurchasePage> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Your PDF will remain locked until the payment is '
+                      'Your Item will remain locked until the payment is '
                       'verified by the administrator.',
                       style: TextStyle(height: 1.4),
                     ),

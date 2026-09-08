@@ -16,7 +16,7 @@ class PdfDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Details'),
+        title: const Text('Item Details'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -64,7 +64,7 @@ class PdfDetailsScreen extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text('Buy PDF'),
+                child: const Text('Buy Item'),
               ),
             ),
             const SizedBox(height: 10),

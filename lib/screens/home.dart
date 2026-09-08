@@ -8,7 +8,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("PDF Shop"),
+        title: const Text("Item Shop"),
         centerTitle: true,
       ),
       body: ListView(
@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.menu_book),
-              title: const Text("Engineering PDFs"),
+              title: const Text("Engineering Items"),
               subtitle: const Text("Civil, Electrical, Mechanical"),
               onTap: () {
                 Navigator.push(

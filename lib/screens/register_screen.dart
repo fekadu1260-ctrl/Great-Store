@@ -21,7 +21,7 @@ class RegisterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Create Your PDF Shop Account',
+              'Create Your Item Shop Account',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 25,

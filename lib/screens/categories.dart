@@ -17,7 +17,7 @@ class CategoriesPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Categories'),
+        title: const Text('Item Categories'),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),

@@ -15,7 +15,7 @@ class RegisterPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              "Join PDF Shop",
+              "Join Item Shop",
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
